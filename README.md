@@ -1,2 +1,2 @@
-# GamePhaseI
-Game, The project - Phase I
+# Game Phase II
+Game Phase II - Game Framework(Phaser.io)
