@@ -113,15 +113,21 @@
 
     function keyboard() {
         if (cursors.left.isDown) {
-            pushCmd(moveLeftCommand(name));
+            if (cursors.up.isDown) {
+                pushCmd(jumpLeftCommand(name));
+            } else {
+              pushCmd(moveLeftCommand(name));
+            }
         } else if (cursors.right.isDown) {
-            pushCmd(moveRightCommand(name));
+            if (cursors.up.isDown) {
+                pushCmd(jumpRightCommand(name));
+            } else {
+              pushCmd(moveRightCommand(name));
+            }
+        } else if (cursors.up.isDown) {
+            pushCmd(jumpCommand(name));
         } else {
             pushCmd(stopCommand(name));
-        }
-
-        if (cursors.up.isDown) {
-            pushCmd(jumpCommand(name));
         }
     }
 
@@ -140,33 +146,57 @@
 
             switch (cmd.type) {
                 case 'STOP':
-                    //  Stand still
-                    player.animations.stop();
-
-                    player.frame = 4;
+                    stopPlayer(player);
                 break;
                 case 'MOV_LEFT':
-                    //  Move to the left
-                    player.body.velocity.x = -150;
-
-                    player.animations.play('left');
+                    moveLeftPlayer(player);
                 break;
                 case 'MOV_RIGHT':
-                    //  Move to the right
-                    player.body.velocity.x = 150;
-
-                    player.animations.play('right');
+                    moveRightPlayer(player);
                 break;
                 case 'JUMP':
-                    //  Allow the player to jump if they are touching the ground.
-                    if (player.body.touching.down && character.hitPlatform) {
-                        player.body.velocity.y = -350;
-                    }
+                    jumpPlayer(player, character);
+                break;
+                case 'JUMP_RIGHT':
+                    moveRightPlayer(player);
+                    jumpPlayer(player, character);
+                break;
+                case 'JUMP_LEFT':
+                    moveLeftPlayer(player);
+                    jumpPlayer(player, character);
                 break;
             }
         });
 
         cleanCmd();
+    }
+
+    function stopPlayer(player) {
+        //  Stand still
+        player.animations.stop();
+
+        player.frame = 4;
+    }
+
+    function moveLeftPlayer(player) {
+        //  Move to the left
+        player.body.velocity.x = -150;
+
+        player.animations.play('left');
+    }
+
+    function moveRightPlayer(player) {
+        //  Move to the right
+        player.body.velocity.x = 150;
+
+        player.animations.play('right');
+    }
+
+    function jumpPlayer(player, character) {
+        //  Allow the player to jump if they are touching the ground.
+        if (player.body.touching.down && character.hitPlatform) {
+            player.body.velocity.y = -350;
+        }
     }
 
     function applyCollision() {
@@ -208,6 +238,20 @@
     function jumpCommand(player) {
         return {
             type: 'JUMP',
+            player: player,
+        };
+    }
+
+    function jumpRightCommand(player) {
+        return {
+            type: 'JUMP_RIGHT',
+            player: player,
+        };
+    }
+
+    function jumpLeftCommand(player) {
+        return {
+            type: 'JUMP_LEFT',
             player: player,
         };
     }
