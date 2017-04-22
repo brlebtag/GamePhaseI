@@ -45,12 +45,6 @@
         //  A simple background for our game
         game.add.sprite(0, 0, 'sky');
 
-        // Add Players name
-        var playersName = game.add.text(10 , 10, name, {
-            fontSize: 12,
-            fontWeight: 700,
-        });
-
         createPlatforms();
         createPlayer(name);
 
@@ -83,10 +77,25 @@
         ledge.body.immovable = true;
     }
 
+    function textMiddleWorld(text) {
+      return (32.0 - (text.length * 6.5)) / 2.0;
+    }
+
     function createPlayer(name) {
         players[name] = {};
 
         var character = players[name];
+
+        // Add Players name
+        var playerName = game.add.text(
+          32 + textMiddleWorld(name), 
+          game.world.height - 125, 
+          name, {
+            fontSize: 12,
+            fontWeight: 700,
+        });
+
+        character.playerName = playerName;
         
         // The player and its settings
         var player = game.add.sprite(32, game.world.height - 150, 'dude');
@@ -134,12 +143,15 @@
     function physics() {
         var player;
         var character;
+        var i, cmd, playerName;
 
         applyCollision();
 
-        commands.forEach(function(cmd) {
+        for(i = 0; i<commands.length; i++) {
+            cmd = commands[i];
             character = players[cmd.player];
             player = character.player;
+            playerName = character.playerName;
 
             //  Reset the players velocity (movement)
             player.body.velocity.x = 0;
@@ -166,7 +178,10 @@
                     jumpPlayer(player, character);
                 break;
             }
-        });
+
+            playerName.x = player.x + textMiddleWorld(playerName.text);
+            playerName.y = player.y - 15;
+        }
 
         cleanCmd();
     }
